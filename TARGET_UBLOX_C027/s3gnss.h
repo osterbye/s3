@@ -13,12 +13,7 @@ public:
     void loop();
 
 private:
-#if 1   // use GPSI2C class
-    GnssI2C gnss;
-#else   // or GPSSerial class
     GnssSerial gnss;
-#endif
-
     bool abort;
     Serial *pc;
     Timer wait_timer;
