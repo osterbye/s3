@@ -1,4 +1,4 @@
-//#include "mbed.h"
+#include "mbed.h"
 #include "s3gnss.h"
 //#include "spicar_mdm.h"
 //#include "spicar_imu.h"
@@ -8,7 +8,7 @@
 //#include "benchmarks/benchmark_thread.h"
 
 DigitalOut led1(LED1);
-Serial pc(USBTX, USBRX);
+Serial debugTerminal(USBTX, USBRX);
 Timer waitTimer;
 
 //Thread dispatcherThread;
@@ -16,14 +16,18 @@ Timer waitTimer;
 int main() {
     const int loopTime = 1000;
     bool abort = false;
-    S3Gnss gnss(&pc);
+    S3Gnss gnss(&debugTerminal);
+
     Thread gnss_thread(osPriorityBelowNormal, 104*8*2);
     //SpiCar_MDM mdm(&pc);
     //Thread mdm_thread(osPriorityBelowNormal, 268*8*2);
     //SpiCar_IMU imu(SDA, SCL, LSM9DS1_PRIMARY_XG_ADDR, LSM9DS1_PRIMARY_M_ADDR, &pc);
     //Thread imu_thread(osPriorityBelowNormal, 96*8*2);
 
-    gnss_thread.start(&gnss, &S3Gnss::loop);
+    osStatus err = gnss_thread.start(callback(&gnss, &S3Gnss::loop));
+    if (err) {
+        // TODO
+    }
 
     /*if (mdm.initialize()) {
         mdm_thread.start(&mdm, &SpiCar_MDM::loop);
@@ -40,7 +44,7 @@ int main() {
     while(!abort) {
         led1 = !led1;
         time_t seconds = time(NULL);
-        pc.printf("Time: %s\r\n", ctime(&seconds));
+        debugTerminal.printf("Time: %s\r\n", ctime(&seconds));
 
         //console_task();
 
@@ -52,5 +56,6 @@ int main() {
 
         Thread::wait((loopTime - waitTimer.read_ms()));
         waitTimer.reset();
+        //wait(0.8);
     }    
 }
