@@ -1,3 +1,4 @@
+./mbed_config.h
 ./mbed-os/mbed.h
 ./mbed-os/features/filesystem/FileSystem.h
 ./mbed-os/features/filesystem/mbed_filesystem.h
@@ -372,10 +373,18 @@
 ./mbed-os/drivers/TableCRC.h
 ./mbed-os/drivers/AnalogOut.h
 ./mbed-os/drivers/I2CSlave.h
+./TARGET_UBLOX_C027/s3cellular.h
 ./TARGET_UBLOX_C027/s3gnss.h
+./TARGET_UBLOX_C027/ublox-at-cellular-interface/UbloxATCellularInterface.h
 ./TARGET_UBLOX_C027/gnss/serial_pipe.h
 ./TARGET_UBLOX_C027/gnss/pipe.h
 ./TARGET_UBLOX_C027/gnss/gnss.h
+./TARGET_UBLOX_C027/ublox-cellular-base/UbloxCellularBase.h
+./common/s3sd.h
+./common/s3can.h
+./common/sd-driver/SDBlockDevice.h
+./common/sd-driver/util/fsfat_debug.h
+./common/sd-driver/util/fsfat_test.h
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/EthernetInterface.h
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/ppp_lwip.h
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/lwip_stack.h
@@ -633,6 +642,7 @@
 ./mbed-os/platform/mbed_critical.c
 ./mbed-os/platform/mbed_assert.c
 ./mbed-os/platform/mbed_semihost_api.c
+./common/sd-driver/util/fsfat_test.c
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/emac_lwip.c
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/lwip_stack.c
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/lwip-eth/arch/TARGET_NXP/TARGET_LPCTarget/lpc_phy_dp83848.c
@@ -857,9 +867,15 @@
 ./mbed-os/drivers/SerialBase.cpp
 ./mbed-os/drivers/Timeout.cpp
 ./mbed-os/drivers/RawSerial.cpp
+./TARGET_UBLOX_C027/s3cellular.cpp
 ./TARGET_UBLOX_C027/s3gnss.cpp
+./TARGET_UBLOX_C027/ublox-at-cellular-interface/UbloxATCellularInterface.cpp
 ./TARGET_UBLOX_C027/gnss/gnss.cpp
 ./TARGET_UBLOX_C027/gnss/serial_pipe.cpp
+./TARGET_UBLOX_C027/ublox-cellular-base/UbloxCellularBase.cpp
+./common/s3sd.cpp
+./common/s3can.cpp
+./common/sd-driver/SDBlockDevice.cpp
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/EthernetInterface.cpp
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/emac_stack_lwip.cpp
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/ppp_lwip.cpp
