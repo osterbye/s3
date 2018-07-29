@@ -5,7 +5,7 @@
 
 #define DEBUG_S3CELLULAR
 #ifdef DEBUG_S3CELLULAR
-#define DBG_CEL(...)          p_debug->printf("[S3Cellular]");p_debug->printf(__VA_ARGS__);p_debug->printf("\r\n")
+#define DBG_CEL(...)          p_debug->printf("[S3Cellular] ");p_debug->printf(__VA_ARGS__);p_debug->printf("\r\n")
 #else
 #define DBG_CEL(...)
 #endif
@@ -21,9 +21,11 @@ public:
     S3Cellular(Serial *debug);
     ~S3Cellular();
 
+    void init();
     void connect();
     void disconnect();
     bool isConnected();
+    uint64_t imei();
     bool send(const void *data, nsapi_size_t size);
     void stopThread();
     void loop();
@@ -42,6 +44,7 @@ private:
 
     Serial *p_debug;
     UbloxATCellularInterface *m_interface;
+    uint64_t m_imei;
     TCPSocket *m_sockTcp;
     SocketAddress *m_tcpServer;
     cell_state_t m_state;

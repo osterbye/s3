@@ -3,6 +3,7 @@
 #include "s3cellular.h"
 #include "s3gnss.h"
 #include "s3sd.h"
+#include "s3wifi.h"
 //#include "spicar_imu.h"
 
 //#include "benchmarks/benchmark_thread.h"
@@ -19,19 +20,31 @@ int main() {
 
     m_debugTerminal.printf("Creating Cellular class\r\n");
     S3Cellular cellular(&m_debugTerminal);
+    m_debugTerminal.printf("Creating Wifi class\r\n");
+    S3Wifi wifi(&m_debugTerminal);
     m_debugTerminal.printf("Creating CAN class\r\n");
-    S3Can can(&m_debugTerminal, &cellular);
+    S3Can can(&m_debugTerminal, &cellular, &wifi);
     m_debugTerminal.printf("Creating GNSS class\r\n");
     S3Gnss gnss(&m_debugTerminal, &cellular);
     m_debugTerminal.printf("Creating SD class\r\n");
     S3Sd sd(&m_debugTerminal);
 
-    Thread cellularThread(osPriorityBelowNormal);
+    cellular.init();
+
+    /*Thread cellularThread(osPriorityBelowNormal);
     osStatus err = cellularThread.start(callback(&cellular, &S3Cellular::loop));
     if (err) {
         // TODO
     } else {
-        cellular.connect();
+        //cellular.connect();
+    }*/
+
+    Thread wifiThread(osPriorityBelowNormal);
+    osStatus err = wifiThread.start(callback(&wifi, &S3Wifi::loop));
+    if (err) {
+        // TODO
+    } else {
+        wifi.connect();
     }
 
     can.init();

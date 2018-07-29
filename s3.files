@@ -380,8 +380,11 @@
 ./TARGET_UBLOX_C027/gnss/pipe.h
 ./TARGET_UBLOX_C027/gnss/gnss.h
 ./TARGET_UBLOX_C027/ublox-cellular-base/UbloxCellularBase.h
+./common/s3wifi.h
 ./common/s3sd.h
 ./common/s3can.h
+./common/esp8266-driver/ESP8266Interface.h
+./common/esp8266-driver/ESP8266/ESP8266.h
 ./common/sd-driver/SDBlockDevice.h
 ./common/sd-driver/util/fsfat_debug.h
 ./common/sd-driver/util/fsfat_test.h
@@ -873,8 +876,11 @@
 ./TARGET_UBLOX_C027/gnss/gnss.cpp
 ./TARGET_UBLOX_C027/gnss/serial_pipe.cpp
 ./TARGET_UBLOX_C027/ublox-cellular-base/UbloxCellularBase.cpp
+./common/s3wifi.cpp
 ./common/s3sd.cpp
 ./common/s3can.cpp
+./common/esp8266-driver/ESP8266Interface.cpp
+./common/esp8266-driver/ESP8266/ESP8266.cpp
 ./common/sd-driver/SDBlockDevice.cpp
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/EthernetInterface.cpp
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/emac_stack_lwip.cpp

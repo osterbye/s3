@@ -7,18 +7,25 @@
 
 S3Cellular::S3Cellular(Serial *debug) :
     p_debug(debug),
+    m_imei(0),
     m_state(STATE_DISCONNECTED),
     m_abort(false),
     m_refreshTime(1000)
 {
     DBG_CEL("Starting cellular interface");
     m_interface = new UbloxATCellularInterface();
+    m_interface->connection_status_cb(callback(this, &S3Cellular::connectionStatus));
 }
 
 S3Cellular::~S3Cellular()
 {
     disconnect();
     stopThread();
+}
+
+void S3Cellular::init()
+{
+    m_imei = static_cast<uint64_t>(atoll(m_interface->imei()));
 }
 
 void S3Cellular::connect()
@@ -43,6 +50,11 @@ bool S3Cellular::isConnected()
     return (STATE_CONNECTED == m_state);
 }
 
+uint64_t S3Cellular::imei()
+{
+    return m_imei;
+}
+
 bool S3Cellular::send(const void *data, nsapi_size_t size)
 {
     if (STATE_CONNECTED == m_state) {
@@ -54,27 +66,27 @@ bool S3Cellular::send(const void *data, nsapi_size_t size)
 
         //char header[11];
         const char *buf = (const char *) data;
-        char header[512];
-        uint64_t imei = static_cast<uint64_t>(atoll(m_interface->imei()));
+        char msg[512];
+        //uint64_t imei = static_cast<uint64_t>(atoll(m_interface->imei()));
         //DBG_CEL("IMEI: %s\n", m_interface->imei());
 
-        header[0] = 's';
-        header[1] = '3';
-        header[2] = 0x01;
-        header[3] = (imei>>56)&0xFF;
-        header[4] = (imei>>48)&0xFF;
-        header[5] = (imei>>40)&0xFF;
-        header[6] = (imei>>32)&0xFF;
-        header[7] = (imei>>24)&0xFF;
-        header[8] = (imei>>16)&0xFF;
-        header[9] = (imei>>8)&0xFF;
-        header[10] = imei&0xFF;
+        msg[0] = 's';
+        msg[1] = '3';
+        msg[2] = 0x01;
+        msg[3] = (m_imei>>56)&0xFF;
+        msg[4] = (m_imei>>48)&0xFF;
+        msg[5] = (m_imei>>40)&0xFF;
+        msg[6] = (m_imei>>32)&0xFF;
+        msg[7] = (m_imei>>24)&0xFF;
+        msg[8] = (m_imei>>16)&0xFF;
+        msg[9] = (m_imei>>8)&0xFF;
+        msg[10] = m_imei&0xFF;
 
         for (nsapi_size_t i = 0; i < size; ++i) {
-            header[11+i] = buf[i];
+            msg[11+i] = buf[i];
         }
 
-        if ((ret = m_sockTcp->send(header, len)) <= 0) {
+        if ((ret = m_sockTcp->send(msg, len)) <= 0) {
             DBG_CEL("----------------------------------------------\n");
             DBG_CEL("FAILED TO SEND MESSAGE.\n");
             DBG_CEL("----------------------------------------------\n");
@@ -120,7 +132,6 @@ void S3Cellular::loop()
     m_waitTimer.start();
     int delay = 0;
     while (!m_abort) {
-
         if (STATE_CONNECTED == m_state) {
 
             delay = m_refreshTime - m_waitTimer.read_ms();
@@ -182,6 +193,6 @@ void S3Cellular::connectionStatus(nsapi_error_t error)
     DBG_CEL("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
     DBG_CEL("Connection error: %d.\n", error);
     DBG_CEL("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-    disconnect();
-    connect();
+    //disconnect();
+    //connect();
 }

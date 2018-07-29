@@ -85,6 +85,8 @@
 ./TARGET_UBLOX_C027/gnss
 ./TARGET_UBLOX_C027/ublox-cellular-base
 ./common
+./common/esp8266-driver
+./common/esp8266-driver/ESP8266
 ./common/sd-driver
 ./common/sd-driver/config
 ./common/sd-driver/docs

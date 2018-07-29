@@ -1,0 +1,9 @@
+{
+    "target_overrides": {
+         "UBLOX_C027": {
+            "esp8266.tx": "D0",
+            "esp8266.rx": "D1",
+            "target.device_has": ["EMAC"]
+        }
+    }
+}

@@ -93,6 +93,7 @@
 #define MBED_CONF_FILESYSTEM_PRESENT                      1                                                                                                // set by library:filesystem
 #define MBED_CONF_PPP_CELL_IFACE_BAUD_RATE                115200                                                                                           // set by library:ppp-cell-iface
 #define MODEM_ON_BOARD                                    1                                                                                                // set by target:UBLOX_C027
+#define MBED_CONF_ESP8266_DEBUG                           0                                                                                                // set by library:esp8266
 #define MBED_LFS_INTRINSICS                               1                                                                                                // set by library:littlefs
 #define NVSTORE_ENABLED                                   1                                                                                                // set by library:nvstore
 #define MBED_CONF_SD_FSFAT_SDCARD_INSTALLED               1                                                                                                // set by library:sd

@@ -1,12 +1,14 @@
 #include "s3can.h"
 #include "s3cellular.h"
+#include "s3wifi.h"
 //#include <errno.h>
 
 #define CAN_BAUD_RATE       500000
 
-S3Can::S3Can(Serial *debug, S3Cellular *cellular) :
+S3Can::S3Can(Serial *debug, S3Cellular *cellular, S3Wifi *wifi) :
     p_debug(debug),
-    p_cellular(cellular)
+    p_cellular(cellular),
+    p_wifi(wifi)
 {
     m_can = new CAN(CANRD, CANTD, CAN_BAUD_RATE);
     m_standby = new DigitalOut(CANS);
@@ -48,5 +50,6 @@ void S3Can::read()
         cellMsg[7+i] = canMsg.data[i];
         p_debug->printf("0x%02x ", canMsg.data[i]);
     }
-    p_cellular->send(cellMsg, msgSize);
+    //p_cellular->send(cellMsg, msgSize);
+    p_wifi->send(cellMsg, msgSize, p_cellular->imei());
 }
