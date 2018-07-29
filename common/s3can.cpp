@@ -2,11 +2,13 @@
 #include "s3cellular.h"
 //#include <errno.h>
 
+#define CAN_BAUD_RATE       500000
+
 S3Can::S3Can(Serial *debug, S3Cellular *cellular) :
     p_debug(debug),
     p_cellular(cellular)
 {
-    m_can = new CAN(CANRD, CANTD);
+    m_can = new CAN(CANRD, CANTD, CAN_BAUD_RATE);
     m_standby = new DigitalOut(CANS);
 }
 
@@ -17,6 +19,8 @@ S3Can::~S3Can()
 void S3Can::init()
 {
     p_debug->printf("Init CAN");
+    //m_can->frequency(250000);
+    m_can->mode(CAN::Normal);
     m_standby->write(0);
     m_can->attach(callback(this, &S3Can::read));
 }
@@ -42,6 +46,7 @@ void S3Can::read()
     cellMsg[6] = canMsg.id&0xFF;
     for (int i = 0; i < canMsg.len && i < 15; ++i) {
         cellMsg[7+i] = canMsg.data[i];
+        p_debug->printf("0x%02x ", canMsg.data[i]);
     }
     p_cellular->send(cellMsg, msgSize);
 }
