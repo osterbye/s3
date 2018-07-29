@@ -3,18 +3,13 @@
 #include "s3cellular.h"
 #include "s3gnss.h"
 #include "s3sd.h"
-//#include "spicar_mdm.h"
 //#include "spicar_imu.h"
-//#include "dispatcher.h"
-//#include "console.h"
 
 //#include "benchmarks/benchmark_thread.h"
 
 DigitalOut led1(LED1);
 Serial m_debugTerminal(USBTX, USBRX);
 Timer m_waitTimer;
-
-//Thread dispatcherThread;
 
 int main() {
     const int loopTime = 1000;
@@ -42,8 +37,6 @@ int main() {
     can.init();
 
     Thread gnssThread(osPriorityBelowNormal, 104*8*2);
-    //SpiCar_MDM mdm(&pc);
-    //Thread mdm_thread(osPriorityBelowNormal, 268*8*2);
     //SpiCar_IMU imu(SDA, SCL, LSM9DS1_PRIMARY_XG_ADDR, LSM9DS1_PRIMARY_M_ADDR, &pc);
     //Thread imu_thread(osPriorityBelowNormal, 96*8*2);
 
@@ -53,22 +46,15 @@ int main() {
     }
 
     m_debugTerminal.printf("Initializing filesystem\r\n");
-    sd.init();
-
-    sd.listContent();
-
-    /*if (mdm.initialize()) {
-        mdm_thread.start(&mdm, &SpiCar_MDM::loop);
+    if (!sd.init()) {
+        sd.listContent();
     }
 
-    if (imu.initialize()) {
+
+    /*if (imu.initialize()) {
         imu_thread.start(&imu, &SpiCar_IMU::loop);
     }*/
 
-    //console_init(&pc);
-    //dispatcherThread.start(dispatcher_task);
-
-    //char testStr[128];
     m_waitTimer.start();
     while(!abort) {
         led1 = !led1;
@@ -82,7 +68,6 @@ int main() {
             cellular.send(testStr, len);
         }*/
 
-        //console_task();
 
         // Benchmarks
         //print_thread_data(&Thread, &pc);
@@ -94,8 +79,6 @@ int main() {
         if (delay > 0) {
             Thread::wait(static_cast<uint32_t>(delay));
         }
-        //Thread::wait((loopTime - m_waitTimer.read_ms()));
         m_waitTimer.reset();
-        //wait(0.8);
     }    
 }
