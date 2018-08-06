@@ -74,6 +74,9 @@ int main() {
         //print_thread_data(&gnss_thread, &pc);
         //print_thread_data(&mdm_thread, &pc);
         //print_thread_data(&imu_thread, &pc);
+        char data[3] = {0x02, 0x01, 0x0D};
+        CANMessage msg(0x7DF, data, 3);
+        can.write(msg);
 
         int delay = loopTime - m_waitTimer.read_ms();
         if (delay > 0) {

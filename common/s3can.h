@@ -11,6 +11,7 @@ public:
     ~S3Can();
 
     void init();
+    void write(CANMessage msg);
     void write(const char *data);
 
 private:

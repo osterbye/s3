@@ -25,6 +25,11 @@ void S3Can::init()
     m_can->attach(callback(this, &S3Can::read));
 }
 
+void S3Can::write(CANMessage msg)
+{
+    m_can->write(msg);
+}
+
 void S3Can::write(const char *data)
 {
     CANMessage msg(0x333, data, static_cast<char>(strlen(data)));
