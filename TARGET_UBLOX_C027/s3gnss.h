@@ -2,16 +2,6 @@
 #define S3GNSS_H_
 #include "gnss/gnss.h"
 
-union floatBytes{
-  float f;
-  char b[sizeof(float)];
-};
-
-union doubleBytes{
-  double d;
-  char b[sizeof(double)];
-};
-
 class S3Cellular;
 
 class S3Gnss

@@ -1,5 +1,6 @@
 #include "s3gnss.h"
 #include "s3cellular.h"
+#include "s3datatypes.h"
 
 #define NMEA183_MAX_MSG_LENGTH    (82*4)
 

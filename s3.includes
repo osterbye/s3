@@ -84,12 +84,14 @@
 ./TARGET_UBLOX_C027/ublox-at-cellular-interface
 ./TARGET_UBLOX_C027/gnss
 ./TARGET_UBLOX_C027/ublox-cellular-base
+./benchmarks
 ./common
 ./common/sd-driver
 ./common/sd-driver/config
 ./common/sd-driver/docs
 ./common/sd-driver/docs/pics
 ./common/sd-driver/util
+./common/LSM9DS1
 ./mbed-os/features/FEATURE_LWIP
 ./mbed-os/features/FEATURE_LWIP/lwip-interface
 ./mbed-os/features/FEATURE_LWIP/lwip-interface/lwip-eth

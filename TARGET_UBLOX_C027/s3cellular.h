@@ -15,7 +15,8 @@ class S3Cellular
 public:
     enum cell_message_type {
         S3_MSG_GNSS,
-        S3_MSG_CAN
+        S3_MSG_CAN,
+        S3_MSG_ACCEL
     };
 
     S3Cellular(Serial *debug);
@@ -34,6 +35,7 @@ private:
     enum cell_state_t{
         STATE_DISCONNECTED,
         STATE_INIT_CONNECT,
+        STATE_INIT_IMEI,
         STATE_INIT_SERVER,
         STATE_INIT_OPEN_SOCKET,
         STATE_INIT_CONNECT_SOCKET,
@@ -45,9 +47,11 @@ private:
     TCPSocket *m_sockTcp;
     SocketAddress *m_tcpServer;
     cell_state_t m_state;
+    uint64_t m_imei;
     bool m_abort;
     Timer m_waitTimer;
     int m_refreshTime;
+    PlatformMutex m_mutex;
 };
 
 #endif // S3CELLULAR_H_
