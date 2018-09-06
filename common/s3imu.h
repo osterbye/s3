@@ -21,7 +21,7 @@ public:
     LSM9DS1* getIMU();
 
 private:
-    uint32_t timestamp();
+    int64_t timestamp();
     void aLoop();
     void gLoop();
     void mLoop();

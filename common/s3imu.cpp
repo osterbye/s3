@@ -23,7 +23,7 @@ S3Imu::S3Imu(PinName sda, PinName scl, uint8_t xgAddr, uint8_t mAddr, Serial *de
     //m_abort(false),
     //m_refreshTime(250)
 {
-    m_imu = new LSM9DS1(sda, scl, xgAddr, mAddr);
+    m_imu = new LSM9DS1(sda, scl, xgAddr, mAddr, debug);
 }
 
 int S3Imu::init()
@@ -60,7 +60,8 @@ void S3Imu::accelConfiguration(accel_scale aScl, accel_odr aRate)
         if (NULL == m_threadAccel) {
             p_debug->printf("Creating accel thread\n");
             m_accelAbort = false;
-            m_threadAccel = new Thread(osPriorityNormal, 2128, NULL, accelName);
+            //m_threadAccel = new Thread(osPriorityNormal, 2128, NULL, accelName);
+            m_threadAccel = new Thread(osPriorityNormal, 3072, NULL, accelName);
             m_threadAccel->start(callback(this, &S3Imu::aLoop));
         }
     }
@@ -128,12 +129,14 @@ LSM9DS1* S3Imu::getIMU()
     return m_imu;
 }
 
-uint32_t S3Imu::timestamp()
+int64_t S3Imu::timestamp()
 {
     struct timeval currentTime;
     gettimeofday(&currentTime, NULL);
     //return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
-    return static_cast<uint32_t>(currentTime.tv_sec * 1000000 + currentTime.tv_usec);
+    //return static_cast<uint32_t>(currentTime.tv_sec * 1000000 + currentTime.tv_usec);
+    //return static_cast<uint32_t>((currentTime.tv_sec*1000) + (currentTime.tv_usec/1000));
+    return (int64_t)((int64_t)currentTime.tv_sec*1000) + ((int64_t)currentTime.tv_usec/1000);
 }
 
 void S3Imu::aLoop()
@@ -147,6 +150,8 @@ void S3Imu::aLoop()
     floatBytes aZ;
     char accelMsg[MAX_MSG_SIZE];
     uint16_t accelIndex = 0;
+    time_t previousTime = 0;
+    uint32_t milliseconds = 0;
 
     bool firstLoop = true;
     int32_t delay = 0;
@@ -175,12 +180,35 @@ void S3Imu::aLoop()
         aZ.f = m_imu->calcAccel(m_imu->az);
         //p_debug->printf("X: %.4f\tY: %.4f\tZ: %.4f\r\n", aX, aY, aZ);
 
-        const uint32_t time = timestamp();
+        //int64_t timenow = timestamp();
+        //struct timeval currentTime;
+        //gettimeofday(&currentTime, NULL);
+        //return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
+        //return static_cast<uint32_t>(currentTime.tv_sec * 1000000 + currentTime.tv_usec);
+        //return static_cast<uint32_t>((currentTime.tv_sec*1000) + (currentTime.tv_usec/1000));
+        //return ((int64_t)currentTime.tv_sec*1000) + ((int64_t)currentTime.tv_usec/1000);
 
-        accelMsg[++accelIndex] = (time>>24)&0xFF;
-        accelMsg[++accelIndex] = (time>>16)&0xFF;
-        accelMsg[++accelIndex] = (time>>8)&0xFF;
-        accelMsg[++accelIndex] = time&0xFF;
+        //uint32_t ts = time(NULL) * 1000;
+        time_t seconds = time(NULL);
+        if (previousTime != seconds) {
+            previousTime = seconds;
+            milliseconds = 0;
+        } else {
+            milliseconds = (milliseconds+m_accelDelay[m_accelOdr]) > 1000 ? 999 : (milliseconds+m_accelDelay[m_accelOdr]);
+        }
+        //p_debug->printf("Time: %s\r\n", ctime(&seconds));
+        //int64_t milliseconds = static_cast<int64_t>(seconds * 1000);
+
+
+        //if (aZ.f > 0.8)
+            //p_debug->printf("timestamp:\r\n\t%lld\r\n\t%lld\r\n", timenow, seconds);
+
+        accelMsg[++accelIndex] = (seconds>>24)&0xFF;
+        accelMsg[++accelIndex] = (seconds>>16)&0xFF;
+        accelMsg[++accelIndex] = (seconds>>8)&0xFF;
+        accelMsg[++accelIndex] = seconds&0xFF;
+        accelMsg[++accelIndex] = (milliseconds>>8)&0xFF;
+        accelMsg[++accelIndex] = milliseconds&0xFF;
         accelMsg[++accelIndex] = aX.b[3];
         accelMsg[++accelIndex] = aX.b[2];
         accelMsg[++accelIndex] = aX.b[1];

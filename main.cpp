@@ -72,12 +72,12 @@ int main() {
             printf("Max heap size: %lu\r\n", heap_stats.max_size);
             printf("Reserved heap size: %lu\r\n", heap_stats.reserved_size);
 
-            int cnt = osThreadGetCount();
+            size_t cnt = osThreadGetCount();
             mbed_stats_stack_t *stats = (mbed_stats_stack_t*) malloc(cnt * sizeof(mbed_stats_stack_t));
 
             cnt = mbed_stats_stack_get_each(stats, cnt);
-            for (int i = 0; i < cnt; i++) {
-                printf("Thread: 0x%X, Stack size: %u, Max stack: %u\r\n", stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
+            for (size_t i = 0; i < cnt; i++) {
+                printf("Thread: 0x%lX, Stack size: %lu, Max stack: %lu\r\n", stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
             }
 
             if (stats)
