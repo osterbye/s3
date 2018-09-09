@@ -104,6 +104,8 @@
 #define MBED_CONF_EVENTS_USE_LOWPOWER_TIMER_TICKER        0                                                                                                // set by library:events
 #define MBED_CONF_EVENTS_SHARED_HIGHPRIO_EVENTSIZE        256                                                                                              // set by library:events
 // Macros
+#define MBED_STACK_STATS_ENABLED                          1                                                                                                // defined by application
 #define UNITY_INCLUDE_CONFIG_H                                                                                                                             // defined by library:utest
+#define MBED_HEAP_STATS_ENABLED                           1                                                                                                // defined by application
 
 #endif

@@ -7,7 +7,7 @@
 
 #define MAX_MSG_SIZE        421
 //#define MAX_MSG_SIZE        32
-#define ACCEL_PAYLOAD_SIZE  16
+#define ACCEL_PAYLOAD_SIZE  18
 
 const char accelName[] = "ACCEL";
 const uint8_t m_accelDelay[7] = {0, 100, 20, 8, 4, 2, 1};
