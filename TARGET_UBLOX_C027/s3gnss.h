@@ -2,12 +2,12 @@
 #define S3GNSS_H_
 #include "gnss/gnss.h"
 
-class S3Cellular;
+class S3Messages;
 
 class S3Gnss
 {
 public:
-    S3Gnss(Serial *debug, S3Cellular *cellular);
+    S3Gnss(Serial *debug, S3Messages *messages);
     ~S3Gnss();
 
     void stopThread();
@@ -15,7 +15,7 @@ public:
 
 private:
     Serial *p_debug;
-    S3Cellular *p_cellular;
+    S3Messages *p_messages;
     GnssSerial m_gnss;
     bool m_abort;
     Timer m_waitTimer;

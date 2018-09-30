@@ -1,14 +1,17 @@
 #include "s3cellular.h"
 
-#define PIN         "0000"
-#define APN         NULL
-#define USERNAME    NULL
-#define PASSWORD    NULL
+#define PIN             "0000"
+#define APN             NULL
+#define USERNAME        NULL
+#define PASSWORD        NULL
 
-S3Cellular::S3Cellular(Serial *debug) :
+
+#define MAX_MSG_SIZE    365
+
+S3Cellular::S3Cellular(Serial *debug, S3Messages *messages) :
     p_debug(debug),
+    p_messages(messages),
     m_state(STATE_DISCONNECTED),
-    m_imei(0),
     m_abort(false),
     m_refreshTime(1000)
 {
@@ -45,61 +48,11 @@ bool S3Cellular::isConnected()
     return (STATE_CONNECTED == m_state);
 }
 
-bool S3Cellular::send(const void *data, nsapi_size_t size)
-{
-    m_mutex.lock();
-    if (STATE_CONNECTED == m_state) {
-    // CHANGED FOR TESTING
-    //if (true) {
-        nsapi_size_t len = size + 11;
-        nsapi_size_or_error_t ret;
-
-        if (len > 512) {
-            m_mutex.unlock();
-            return false;
-        }
-
-        const char *buf = static_cast<const char *>(data);
-        char header[512];
-        //uint64_t imei = static_cast<uint64_t>(atoll(m_interface->imei()));
-        //DBG_CEL("IMEI: %s\n", m_interface->imei());
-
-        header[0] = 's';
-        header[1] = '3';
-        header[2] = 0x01;
-        header[3] = (m_imei>>56)&0xFF;
-        header[4] = (m_imei>>48)&0xFF;
-        header[5] = (m_imei>>40)&0xFF;
-        header[6] = (m_imei>>32)&0xFF;
-        header[7] = (m_imei>>24)&0xFF;
-        header[8] = (m_imei>>16)&0xFF;
-        header[9] = (m_imei>>8)&0xFF;
-        header[10] = m_imei&0xFF;
-
-        for (nsapi_size_t i = 0; i < size; ++i) {
-            header[11+i] = buf[i];
-        }
-
-        // COMMENTED OUT FOR TESTING
-        if ((ret = m_sockTcp->send(header, len)) <= 0) {
-            //DBG_CEL("----------------------------------------------\n");
-            DBG_CEL("FAILED TO SEND MESSAGE.\n");
-            //DBG_CEL("----------------------------------------------\n");
-            disconnect();
-            connect();
-            m_mutex.unlock();
-            return false;
-        }
-        m_mutex.unlock();
-        return true;
-    }
-    m_mutex.unlock();
-    return false;
-}
-
 void S3Cellular::stopThread()
 {
     m_abort = true;
+    // Trigger event so we can loop to thread abort
+    p_messages->messageAvailable.set(NEW_SHORT_MESSAG_AVAILABLE | NEW_LONG_MESSAGE_AVAILABLE);
 }
 
 void S3Cellular::loop()
@@ -108,7 +61,25 @@ void S3Cellular::loop()
     uint32_t delay = 0;
     while (!m_abort) {
         if (STATE_CONNECTED == m_state) {
-            delay = static_cast<uint32_t>(m_refreshTime - m_waitTimer.read_ms());
+            p_messages->messageAvailable.wait_any(NEW_SHORT_MESSAG_AVAILABLE | NEW_LONG_MESSAGE_AVAILABLE);
+            while (!p_messages->emptyLong()) {
+                longMessage *msg = p_messages->getNextLong();
+                if (msg != NULL && send(msg->data, msg->len)) {
+                    //DBG_CEL("freeLong\n");
+                    p_messages->freeLong(msg);
+                } else {
+                    break;
+                }
+            }
+            while (!p_messages->emptyShort()) {
+                shortMessage *msg = p_messages->getNextShort();
+                if (msg != NULL && send(msg->data, msg->len)) {
+                    //DBG_CEL("freeShort\n");
+                    p_messages->freeShort(msg);
+                } else {
+                    break;
+                }
+            }
         } else if (STATE_INIT_CONNECT == m_state) {
             if (m_interface->connect(PIN) != 0) {
                 DBG_CEL("Could not connect. Check antenna, APN, PIN, etc.\n");
@@ -119,12 +90,13 @@ void S3Cellular::loop()
                 delay = 0;
             }
         } else if (STATE_INIT_IMEI == m_state) {
-            m_imei = static_cast<uint64_t>(atoll(m_interface->imei()));
-            if (0 == m_imei) {
+            uint64_t imei = static_cast<uint64_t>(atoll(m_interface->imei()));
+            if (0 == imei) {
                 DBG_CEL("Could not get IMEI.\n");
                 m_state = STATE_INIT_CONNECT;
                 delay = 1000;
             } else {
+                p_messages->setDeviceId(imei);
                 m_state = STATE_INIT_SERVER;
                 delay = 0;
             }
@@ -169,6 +141,23 @@ void S3Cellular::loop()
         }
         m_waitTimer.reset();
     }
+}
+
+bool S3Cellular::send(const void *data, nsapi_size_t size)
+{
+    //DBG_CEL("SEND\n");
+    if (STATE_CONNECTED == m_state) {
+        if (m_sockTcp->send(data, size) < 0) {
+            //DBG_CEL("----------------------------------------------\n");
+            DBG_CEL("FAILED TO SEND MESSAGE.\n");
+            //DBG_CEL("----------------------------------------------\n");
+            disconnect();
+            connect();
+            return false;
+        }
+        return true;
+    }
+    return false;
 }
 
 void S3Cellular::connectionStatus(nsapi_error_t error)

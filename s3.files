@@ -375,16 +375,18 @@
 ./mbed-os/drivers/I2CSlave.h
 ./TARGET_UBLOX_C027/s3cellular.h
 ./TARGET_UBLOX_C027/s3gnss.h
+./TARGET_UBLOX_C027/s3device.h
 ./TARGET_UBLOX_C027/ublox-at-cellular-interface/UbloxATCellularInterface.h
 ./TARGET_UBLOX_C027/gnss/serial_pipe.h
 ./TARGET_UBLOX_C027/gnss/pipe.h
 ./TARGET_UBLOX_C027/gnss/gnss.h
 ./TARGET_UBLOX_C027/ublox-cellular-base/UbloxCellularBase.h
-./benchmarks/benchmark_thread.h
 ./common/s3datatypes.h
 ./common/s3sd.h
+./common/s3messages.h
 ./common/s3imu.h
 ./common/s3can.h
+./common/s3version.h
 ./common/sd-driver/SDBlockDevice.h
 ./common/sd-driver/util/fsfat_debug.h
 ./common/sd-driver/util/fsfat_test.h
@@ -880,6 +882,7 @@
 ./TARGET_UBLOX_C027/gnss/serial_pipe.cpp
 ./TARGET_UBLOX_C027/ublox-cellular-base/UbloxCellularBase.cpp
 ./common/s3imu.cpp
+./common/s3messages.cpp
 ./common/s3sd.cpp
 ./common/s3can.cpp
 ./common/sd-driver/SDBlockDevice.cpp

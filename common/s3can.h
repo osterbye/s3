@@ -2,24 +2,39 @@
 #define S3CAN_H_
 #include <mbed.h>
 
-class S3Cellular;
+#define OBD_II_SUPPORT
+
+class S3Messages;
 
 class S3Can
 {
 public:
-    S3Can(Serial *debug, S3Cellular *cellular);
+    S3Can(Serial *debug, S3Messages *messages);
     ~S3Can();
 
     void init();
     void write(CANMessage msg);
-    void write(const char *data);
 
 private:
     void read();
 
 private:
+#ifdef OBD_II_SUPPORT
+    enum FRAME_CONTROL {
+        SEND_REMAINING_FRAMES = 0,
+        SEPARATION_TIME_NONE = 0,
+        FLOW_CTS = 0,
+        FLOW_WAIT,
+        FLOW_ABORT,
+        FRAME_SINGLE = 0x00,
+        FRAME_FIRST = 0x10,
+        FRAME_CONSECUTIVE = 0x20,
+        FRAME_FLOW_CTRL = 0x30
+    };
+#endif
+
     Serial *p_debug;
-    S3Cellular *p_cellular;
+    S3Messages *p_messages;
 
     CAN *m_can;
     DigitalOut *m_standby;

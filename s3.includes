@@ -84,7 +84,6 @@
 ./TARGET_UBLOX_C027/ublox-at-cellular-interface
 ./TARGET_UBLOX_C027/gnss
 ./TARGET_UBLOX_C027/ublox-cellular-base
-./benchmarks
 ./common
 ./common/sd-driver
 ./common/sd-driver/config

@@ -1,7 +1,8 @@
 #ifndef S3CELLULAR_H_
 #define S3CELLULAR_H_
-#include <mbed.h>
+#include "s3messages.h"
 #include "UbloxATCellularInterface.h"
+#include <mbed.h>
 
 #define DEBUG_S3CELLULAR
 #ifdef DEBUG_S3CELLULAR
@@ -13,22 +14,17 @@
 class S3Cellular
 {
 public:
-    enum cell_message_type {
-        S3_MSG_GNSS,
-        S3_MSG_CAN,
-        S3_MSG_ACCEL
-    };
-
-    S3Cellular(Serial *debug);
+    S3Cellular(Serial *debug, S3Messages *messages);
     ~S3Cellular();
 
     void connect();
     void disconnect();
     bool isConnected();
-    bool send(const void *data, nsapi_size_t size);
     void stopThread();
     void loop();
 
+private:
+    bool send(const void *data, nsapi_size_t size);
     void connectionStatus(nsapi_error_t error);
 
 private:
@@ -43,11 +39,11 @@ private:
     };
 
     Serial *p_debug;
+    S3Messages *p_messages;
     UbloxATCellularInterface *m_interface;
     TCPSocket *m_sockTcp;
     SocketAddress *m_tcpServer;
     cell_state_t m_state;
-    uint64_t m_imei;
     bool m_abort;
     Timer m_waitTimer;
     int m_refreshTime;

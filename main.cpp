@@ -1,9 +1,12 @@
 #include "mbed.h"
-//#include "s3can.h"
+#include "s3can.h"
 #include "s3cellular.h"
+#include "s3device.h"
 #include "s3gnss.h"
 #include "s3imu.h"
+#include "s3messages.h"
 //#include "s3sd.h"
+#include "s3version.h"
 
 #include "mbed_stats.h"
 
@@ -19,19 +22,22 @@ int main() {
 
     const int loopTime = 1000;
     bool abort = false;
+    bool firstConnection = true;
 
     m_debugTerminal.printf("\r\n\r\nStarting S3 application\r\n");
 
+    m_debugTerminal.printf("Creating Messages class\r\n");
+    S3Messages messages;
     m_debugTerminal.printf("Creating Cellular class\r\n");
-    S3Cellular cellular(&m_debugTerminal);
-    //m_debugTerminal.printf("Creating CAN class\r\n");
-    //S3Can can(&m_debugTerminal, &cellular);
+    S3Cellular cellular(&m_debugTerminal, &messages);
+    m_debugTerminal.printf("Creating CAN class\r\n");
+    S3Can can(&m_debugTerminal, &messages);
     m_debugTerminal.printf("Creating GNSS class\r\n");
-    S3Gnss gnss(&m_debugTerminal, &cellular);
+    S3Gnss gnss(&m_debugTerminal, &messages);
     //m_debugTerminal.printf("Creating SD class\r\n");
     //S3Sd sd(&m_debugTerminal);
     m_debugTerminal.printf("Creating IMU class\r\n");
-    S3Imu imu(SDA, SCL, 0xD6, 0x3C, &m_debugTerminal, &cellular);
+    S3Imu imu(SDA, SCL, 0xD6, 0x3C, &m_debugTerminal, &messages);
     bool imuIsRunning = false;
 
     Thread cellularThread(osPriorityBelowNormal, 1400, NULL, cellularName);
@@ -42,7 +48,7 @@ int main() {
         cellular.connect();
     }
 
-    //can.init();
+    can.init();
 
     Thread gnssThread(osPriorityBelowNormal, 2160, NULL, gnssName);
     err = gnssThread.start(callback(&gnss, &S3Gnss::loop));
@@ -84,6 +90,25 @@ int main() {
                 free(stats);
         }
 
+        if (firstConnection && cellular.isConnected()) {
+            const uint8_t deviceLen = strlen(deviceType);
+            const uint16_t payloadSize = deviceLen + 7;
+            shortMessage *msg = messages.allocShort();
+            if (NULL != msg) {
+                msg->data[msg->len++] = (payloadSize>>8)&0xFF;
+                msg->data[msg->len++] = payloadSize&0xFF;
+                msg->data[msg->len++] = S3Messages::S3_MSG_DEVICE;
+                msg->data[msg->len++] = FIRMWARE_VERSION_MAJOR;
+                msg->data[msg->len++] = FIRMWARE_VERSION_MINOR;
+                msg->data[msg->len++] = FIRMWARE_VERSION_REVISION;
+                msg->data[msg->len++] = deviceLen&0xFF;
+                memcpy(&msg->data[msg->len], deviceType, deviceLen);
+                msg->len += deviceLen;
+                messages.putShort(msg);
+                messages.messageAvailable.set(NEW_SHORT_MESSAG_AVAILABLE);
+                firstConnection = false;
+            }
+        }
 
         if (!imuIsRunning && cellular.isConnected()) {
             if (0 != imu.init()) {
@@ -93,12 +118,6 @@ int main() {
             }
         }
 
-
-        // Benchmarks
-        //print_thread_data(&Thread, &m_debugTerminal);
-        //print_thread_data(&gnssThread, &m_debugTerminal);
-        //print_thread_data(&cellularThread, &m_debugTerminal);
-        //print_thread_data(&imu_thread, &pc);
         /*char data[3] = {0x02, 0x01, 0x0D};
         CANMessage msg(0x7DF, data, 3);
         can.write(msg);*/

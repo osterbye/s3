@@ -1,0 +1,9 @@
+#ifndef S3VERSION_H_
+#define S3VERSION_H_
+
+#define FIRMWARE_VERSION_MAJOR      1
+#define FIRMWARE_VERSION_MINOR      0
+#define FIRMWARE_VERSION_REVISION   0
+
+
+#endif // S3VERSION_H_
